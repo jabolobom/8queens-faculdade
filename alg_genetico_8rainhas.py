@@ -1,4 +1,4 @@
-import random
+import random, time, sys
 
 ##### Defs iniciais - cada processo de algoritmo genetico
 
@@ -179,7 +179,12 @@ print("")
 
 def algoritmo_genetico(qtd_populacao=100, qtd_pais=20, taxa_mutacao=0.1, max_geracoes=1000):
 
+    inicio_tempo = time.time() ## Marca o tempo inicial
+
     populacao = gerar_populacao(qtd_populacao)
+
+    ## Calcula a memória necessaria
+    memoria_populacao = sys.getsizeof(populacao) + sum(sys.getsizeof(ind) for ind in populacao)
 
     for geracao in range(max_geracoes):
         print(f"Geração {geracao+1}")
@@ -195,8 +200,12 @@ def algoritmo_genetico(qtd_populacao=100, qtd_pais=20, taxa_mutacao=0.1, max_ger
 
         ## Verifica se o individuo possui 0 conflitos
         if conflitos == 0:
+            fim_tempo = time.time() ## Marca o fim do tempo se sucesso
+            tempo_execucao = fim_tempo - inicio_tempo ## Calcula o tempo total se sucesso
             print("")
             print("Solução encontrada!")
+            print(f"Tempo necessário: {tempo_execucao:.4f} segundos")
+            print(f"Uso estimado de memória (população inicial): {memoria_populacao} bytes")
             return melhor_individuo
 
         ## Seleciona os pais
@@ -218,6 +227,9 @@ def algoritmo_genetico(qtd_populacao=100, qtd_pais=20, taxa_mutacao=0.1, max_ger
 
         ## Atualizaçã a população com os filhos
         populacao = filhos
+    
+    fim_tempo = time.time() ## Marca o fim do tempo se fracasso
+    tempo_execucao = fim_tempo - inicio_tempo ## Calcula o tempo total se fracasso
 
     print("")
     print("Número máximo de gerações atingido. Nenhuma solução perfeita encontrada.")
