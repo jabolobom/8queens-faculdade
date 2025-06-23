@@ -17,7 +17,7 @@ CINZA = (200, 200, 200)
 # Inicialização do Pygame
 pygame.init()
 screen = pygame.display.set_mode((LARGURA, ALTURA))
-pygame.display.set_caption("Titulo")
+pygame.display.set_caption("Problema das 8 Rainhas")
 
 def desenhar_tabuleiro():
     for linha in range(NUM_RAINHAS):

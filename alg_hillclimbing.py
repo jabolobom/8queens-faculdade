@@ -1,5 +1,5 @@
 from random import randint
-import time, math
+import time, math, tracemalloc
 
 # até 12 queens ele resolve super rápido
 # 13 queens demora, mas resolve
@@ -98,6 +98,7 @@ def neighbor_state(grid, score_to_beat):
 
 
 def solve():
+    tracemalloc.start()
     start = time.time()
     while True: # loop infinito pra forçar a testagem até encontrar
         # limpar grid
@@ -114,10 +115,16 @@ def solve():
             # de uma nova grid para testar
             print("Solution found!")
             for x in climbing: print(x)
+               # estatisticas
+            end = time.time()
+
+            print(f"\nTotal de rainhas {N_QUEENS}\nTempo total: {end - start:.4f} segundos\nTotal de possibilidades: {math.factorial(N_QUEENS)}")
+            # interessante, nessa solução a quantidade de boards possívels é sempre NQUEENS fatorial, pois só pode existir 1 rainha
+            # por row,
+
+            current, peak = tracemalloc.get_traced_memory()
+            print(f"RAM pico: {peak / (1024 * 1024):.2f} MB")
+            tracemalloc.stop()
             return climbing
 
-    # estatisticas
-    end = time.time()
-    print(f"\nTotal de rainhas {N_QUEENS}\nTempo total: {end - start:.4f} segundos\nTotal de possibilidades: {math.factorial(N_QUEENS)}")
-    # interessante, nessa solução a quantidade de boards possívels é sempre NQUEENS fatorial, pois só pode existir 1 rainha
-    # por row,
+ 
