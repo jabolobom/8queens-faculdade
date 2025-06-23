@@ -93,11 +93,11 @@ def neighbor_state(grid, score_to_beat):
         return neighbor_state(best_grid, best_score)
 
 
-    print(f"No solution better found, regenerating board\n")
+    print(f"No better solution found, regenerating board\n")
     return 0
 
 
-def main():
+def solve():
     start = time.time()
     while True: # loop infinito pra forçar a testagem até encontrar
         # limpar grid
@@ -114,13 +114,10 @@ def main():
             # de uma nova grid para testar
             print("Solution found!")
             for x in climbing: print(x)
-            break
+            return climbing
 
     # estatisticas
     end = time.time()
-    print(f"\nTotal de rainhas {N_QUEENS}\nTempo total: {end - start:.4f} segundos\nTotal de possibilidades: {math.factorial(N_QUEENS - 1)}")
+    print(f"\nTotal de rainhas {N_QUEENS}\nTempo total: {end - start:.4f} segundos\nTotal de possibilidades: {math.factorial(N_QUEENS)}")
     # interessante, nessa solução a quantidade de boards possívels é sempre NQUEENS fatorial, pois só pode existir 1 rainha
     # por row,
-
-if __name__ == "__main__":
-    main()
