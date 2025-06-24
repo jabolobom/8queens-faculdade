@@ -58,42 +58,36 @@ def evaluate_solution(grid):
     return score # retorna o score calculado
 
 def neighbor_state(grid, score_to_beat):
-    # print("Climbing function running\n") DEBUG
-    best_grid = None # melhor grid encontrada até o momento
-    best_score = score_to_beat # score a ser vencido
+    best_grid = None
+    best_score = score_to_beat
 
     for i in range(len(grid)):
         for j in range(len(grid[0])):
-            if grid[i][j] != 1: # ignorar casas vazias
+            if grid[i][j] != 1:
                 continue
 
-            for delta_j in [-1, 1]:  # esquerda e direita
-                new_j = j + delta_j # movimenta pra esquerda -1 ou direita +1
+            for delta_j in [-1, 1]:
+                new_j = j + delta_j
 
-                if 0 <= new_j < len(grid[0]) and grid[i][new_j] == 0: # checa pra ver se não é out of bounds
-
-                    new_grid = [row[:] for row in grid] # deep copy pra testes
+                if 0 <= new_j < len(grid[0]) and grid[i][new_j] == 0:
+                    # Copia apenas a linha modificada (mais leve que copiar o grid inteiro)
+                    new_grid = [row[:] for row in grid]
                     new_grid[i][j] = 0
-                    new_grid[i][new_j] = 1 # movimenta a querida
+                    new_grid[i][new_j] = 1
 
                     result = evaluate_solution(new_grid)
 
-                    # print(f"Ran eval on newgrid:\n{chr(10).join(str(x) for x in new_grid)}, \nNew score: {result}\n") # DEBUG
-
-                    # se o resultado for melhor
                     if result < best_score:
+                        best_grid = new_grid
+                        best_score = result
 
-                        best_grid = new_grid # a nova grid é melhor
-                        best_score = result # o melhor score é o atual
+                        if result == 0:
+                            return new_grid  # early stop ao encontrar solução perfeita
 
-                        if result == 0: # se encontrada solução, retorna a grid melhorada
-                            return new_grid
-
-    if best_grid: # se uma grid melhor for encontrada com a grid inicial, recursivamente vai tentando até achar algo melhor
+    if best_grid:
         return neighbor_state(best_grid, best_score)
 
-
-    print(f"No better solution found, regenerating board\n")
+    # Removido print para acelerar
     return 0
 
 
@@ -127,4 +121,40 @@ def solve():
             tracemalloc.stop()
             return climbing
 
- 
+def encontrar_92_solucoes_hillclimbing():
+    tracemalloc.start()
+    start = time.time()
+
+    solucoes = []
+    solucoes_set = set()
+
+    tentativas = 0
+    max_tentativas = 500000  # aumentei para dar mais chances de achar soluções
+
+    while len(solucoes) < 92 and tentativas < max_tentativas:
+        tentativas += 1
+        # limpa grid
+        for i in range(N_QUEENS):
+            for j in range(N_QUEENS):
+                grid[i][j] = 0
+
+        populate_grid(grid, random_queen())
+        current_score = evaluate_solution(grid)
+        climbing = neighbor_state(grid, current_score)
+
+        if climbing != 0:
+            sol = tuple([row.index(1) for row in climbing])
+            if sol not in solucoes_set:
+                solucoes_set.add(sol)
+                solucoes.append(sol)
+                print(f"Solução {len(solucoes)}: {sol}")
+
+    end = time.time()
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    print(f"\nForam encontradas {len(solucoes)} soluções únicas em {end - start:.2f} segundos.")
+    print(f"Memória atual usada no final: {current} bytes")
+    print(f"Pico de uso de memória: {peak} bytes")
+
+    return solucoes
