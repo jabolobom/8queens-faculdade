@@ -1,4 +1,4 @@
-import random, time, sys
+import random, time, tracemalloc
 
 ##### Defs iniciais - cada processo de algoritmo genetico
 
@@ -178,9 +178,6 @@ def algoritmo_genetico(qtd_populacao=100, qtd_pais=20, taxa_mutacao=0.1, max_ger
 
     populacao = gerar_populacao(qtd_populacao)
 
-    ## Calcula a memória necessaria
-    memoria_populacao = sys.getsizeof(populacao) + sum(sys.getsizeof(ind) for ind in populacao)
-
     for geracao in range(max_geracoes):
         print(f"Geração {geracao+1}")
 
@@ -200,7 +197,6 @@ def algoritmo_genetico(qtd_populacao=100, qtd_pais=20, taxa_mutacao=0.1, max_ger
             print("")
             print("Solução encontrada!")
             print(f"Tempo necessário: {tempo_execucao:.4f} segundos")
-            print(f"Uso estimado de memória (população inicial): {memoria_populacao} bytes")
             return melhor_individuo
 
         ## Seleciona os pais
@@ -229,3 +225,41 @@ def algoritmo_genetico(qtd_populacao=100, qtd_pais=20, taxa_mutacao=0.1, max_ger
     print("")
     print("Número máximo de gerações atingido. Nenhuma solução perfeita encontrada.")
     return "Nenhuma solução encontrada"
+
+############################### Encontrar 92 soluções únicas ###############################
+
+def encontrar_92_solucoes_genetico(qtd_populacao=300, qtd_pais=80, taxa_mutacao=0.3, max_geracoes=10000):
+    tracemalloc.start()
+    inicio_tempo = time.time()
+    populacao = gerar_populacao(qtd_populacao)
+
+    solucoes = []
+    geracoes = 0
+    tentativas = 0
+
+    while len(solucoes) < 92 and geracoes < max_geracoes:
+        tentativas += 1
+        populacao = sorted(populacao, key=avaliar)
+        melhor = populacao[0]
+        if avaliar(melhor) == 0 and melhor not in solucoes:
+            solucoes.append(melhor)
+            print(f"Solução {len(solucoes)}: {melhor}")
+
+        pais = selecionar(qtd_pais, populacao)
+        filhos = []
+        for _ in range(len(populacao)):
+            pai1, pai2 = random.sample(pais, 2)
+            filho = cruzar(pai1, pai2)
+            filho = mutar(filho, taxa_mutacao)
+            filhos.append(filho)
+        populacao = filhos
+        geracoes += 1
+
+    fim_tempo = time.time()
+    mem_atual, mem_pico = tracemalloc.get_traced_memory()  # Captura o uso de memória
+    tracemalloc.stop()
+
+    print(f"\nForam encontradas {len(solucoes)} soluções únicas em {fim_tempo - inicio_tempo:.2f} segundos.")
+    print(f"Memória atual usada no final: {mem_atual} bytes")
+    print(f"Pico de uso de memória: {mem_pico} bytes")
+    return solucoes
